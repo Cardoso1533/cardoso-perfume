@@ -7,13 +7,15 @@
 body { margin:0; font-family:Arial; background:linear-gradient(135deg,#8B0000,#000); color:#fff; min-height:100vh; position:relative; }
 body::before { content:"CARDOSO PERFUME"; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-30deg); font-size:120px; color:rgba(255,235,59,0.05); pointer-events:none; z-index:0; }
 header { position:fixed; top:0; width:100%; background:rgba(17,17,17,0.95); padding:15px 20px; text-align:center; font-size:28px; font-weight:bold; color:#ffeb3b; z-index:10; }
-.container { padding:140px 20px 20px; max-width:500px; margin:auto; backdrop-filter:blur(8px); background:rgba(0,0,0,0.6); border-radius:15px; z-index:1; position:relative; }
+.container { padding:180px 20px 20px; max-width:500px; margin:auto; backdrop-filter:blur(8px); background:rgba(0,0,0,0.6); border-radius:15px; z-index:1; position:relative; }
 .card { background:linear-gradient(135deg,#ff0000,#8B0000); color:#fff; padding:15px 20px; margin:15px 0; border-radius:15px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition: transform 0.2s, box-shadow 0.2s; }
 .card:hover { transform:translateY(-5px); box-shadow:0 6px 20px rgba(0,0,0,0.7);}
 .card button { background:#000; color:#ffeb3b; border:none; padding:10px 15px; border-radius:10px; font-weight:bold; cursor:pointer;}
 .card button:hover { background:#222;}
 input[type="number"], input[type="text"] { width:100%; padding:12px; border-radius:10px; border:none; margin:10px 0; font-size:16px; }
 .total-box { margin-top:10px; font-size:20px; font-weight:bold; color:#00ff00; text-align:center; }
+.carrinho-box, .relatorio-box { margin-top:20px; background:rgba(0,0,0,0.7); padding:15px; border-radius:15px; }
+.carrinho-box h4, .relatorio-box h4 { margin:0 0 10px 0; }
 .pix-box, .taptap-box { display:none; background:rgba(34,34,34,0.95); padding:20px; margin-top:20px; border-radius:15px; text-align:center; }
 .pix-box img { margin-top:15px; width:200px; height:200px; }
 button.generate,input[type="submit"],button.copy-btn { width:100%; padding:15px; font-size:18px; margin-top:15px; border-radius:15px; background:#ffeb3b; color:#000; font-weight:bold; cursor:pointer; border:none; transition:opacity 0.2s;}
@@ -33,8 +35,16 @@ a.whatsapp-btn:hover { opacity:0.8; }
   <div class="card"><span>25.000 perfumes</span><span>R$ 15,00</span><button onclick="addCart(25000,15)">Comprar</button></div>
   <div class="card"><span>50.000 perfumes</span><span>R$ 30,00</span><button onclick="addCart(50000,30)">Comprar</button></div>  <h3>Quantidade personalizada:</h3>
   <input type="number" id="quantidade" placeholder="Digite a quantidade">
-  <button class="generate" onclick="addCustom()">Adicionar ao carrinho</button>  <div class="total-box" id="total">Total: R$ 0,00</div>
-  <button class="generate" onclick="gerarPagamento()">Gerar Pagamento</button>  <div id="pagamentoPIX" class="pix-box">
+  <button class="generate" onclick="addCustom()">Adicionar ao carrinho</button>  <div class="carrinho-box" id="carrinhoBox">
+    <h4>Carrinho:</h4>
+    <ul id="listaCarrinho"></ul>
+  </div>  <div class="total-box" id="total">Total: R$ 0,00</div>
+  <button class="generate" onclick="gerarPagamento()">Gerar Pagamento</button>
+  <button class="generate" onclick="limparCarrinho()">Limpar Carrinho</button>  <div class="relatorio-box" id="relatorioBox">
+    <h4>Relatório de vendas:</h4>
+    <p id="totalVendido">Total vendido: 0</p>
+    <p id="lucroTotal">Lucro total: R$ 0,00</p>
+  </div>  <div id="pagamentoPIX" class="pix-box">
     <h2>Pagamento via PIX / PicPay</h2>
     <p><strong>Chave PIX (CPF):</strong> 44879579823</p>
     <p id="valorFinalPIX"></p>
@@ -51,29 +61,40 @@ a.whatsapp-btn:hover { opacity:0.8; }
 </div>
 <a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a><script>
 let cart=[],total=0,entregaDeadline=null,entregaInterval=null;
-const custoPor1000 = 0.40; // custo por 1000 perfumes
+const custoPor1000 = 0.40;
+let totalVendas = 0;
+let lucroAcumulado = 0;
 
-function atualizarTotal(){ document.getElementById("total").innerText="Total: R$ "+total.toFixed(2); }
+function atualizarTotal(){ document.getElementById("total").innerText="Total: R$ "+total.toFixed(2); atualizarCarrinho(); }
+function atualizarCarrinho(){
+  const lista = document.getElementById("listaCarrinho");
+  lista.innerHTML="";
+  cart.forEach((item,i)=>{ lista.innerHTML+=`<li>${item.q} unidades - R$ ${item.v.toFixed(2)}</li>`; });
+}
+
+function atualizarRelatorio(){
+  document.getElementById("totalVendido").innerText=`Total vendido: ${totalVendas} unidades`;
+  document.getElementById("lucroTotal").innerText=`Lucro total: R$ ${lucroAcumulado.toFixed(2)}`;
+}
+
 function addCart(q,v){ cart.push({q,v}); total+=v; atualizarTotal(); }
 function addCustom(){ let q=parseInt(document.getElementById("quantidade").value)||0; if(q<=0){ alert("Digite uma quantidade válida!"); return; } let v=(q/1000)*0.6; addCart(q,v); document.getElementById("quantidade").value=''; }
+function limparCarrinho(){ cart=[]; total=0; atualizarTotal(); document.getElementById("pagamentoPIX").style.display="none"; document.getElementById("pagamentoTapTap").style.display="none"; }
 
 function iniciarEntrega(){ if(!entregaDeadline) return; clearInterval(entregaInterval); entregaInterval=setInterval(()=>{ let now=new Date().getTime(), dist=entregaDeadline-now; if(dist<=0){ clearInterval(entregaInterval); document.getElementById("tempoEntregaPIX").innerHTML="<strong>Entrega:</strong> Pedido entregue!"; return; } let h=Math.floor(dist/(1000*60*60)), m=Math.floor((dist%(1000*60*60))/(1000*60)), s=Math.floor((dist%(1000*60))/1000); document.getElementById("tempoEntregaPIX").innerHTML=`<strong>Entrega:</strong> ${h}h ${m}m ${s}s`; },1000); }
 
 function gerarPagamento(){
   if(total<=0){ alert("Adicione pelo menos um item!"); return; }
   let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);
-  // PIX
   document.getElementById("pagamentoPIX").style.display="block";
   document.getElementById("valorFinalPIX").innerHTML=`<strong>Quantidade total:</strong> ${totalPerf}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
   document.getElementById("qrcodePIX").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QTD ${totalPerf}`);
-  entregaDeadline=new Date().getTime()+24*60*60*1000;
-  iniciarEntrega();
-  // TapTapSend
+  entregaDeadline=new Date().getTime()+24*60*60*1000; iniciarEntrega();
   document.getElementById("pagamentoTapTap").style.display="block";
   document.getElementById("valorFinalTapTap").innerText="R$ "+total.toFixed(2);
 }
 
-function copiarPix(){ let totalPerf=cart.reduce((acc,it)=>acc+it.q,0); let val=total.toFixed(2); navigator.clipboard.writeText(`PIX CPF 44879579823 VALOR R$ ${val} QTD ${totalPerf}`).then(()=>{ alert("PIX copiado!"); }); cart=[]; total=0; atualizarTotal(); }
+function copiarPix(){ let totalPerf=cart.reduce((acc,it)=>acc+it.q,0); let val=total.toFixed(2); totalVendas+=totalPerf; lucroAcumulado += total - (totalPerf/1000)*custoPor1000; atualizarRelatorio(); navigator.clipboard.writeText(`PIX CPF 44879579823 VALOR R$ ${val} QTD ${totalPerf}`).then(()=>{ alert("PIX copiado!"); }); limparCarrinho(); }
 function abrirTapTap(){ window.location.href="taptapsend://"; }
 
 function enviarWhatsApp(){
@@ -83,12 +104,15 @@ function enviarWhatsApp(){
   if(cart.length===0){ alert("Adicione produtos antes de enviar o pedido!"); return; }
   let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);
   let lucro = total - (totalPerf/1000)*custoPor1000;
+  totalVendas += totalPerf;
+  lucroAcumulado += lucro;
+  atualizarRelatorio();
   let valorTotal=total.toFixed(2);
   let mensagem=`Olá! Pedido de ${nome} (${whatsapp}):\nQuantidade: ${totalPerf}\nValor: R$ ${valorTotal}\nLucro estimado: R$ ${lucro.toFixed(2)}\nPagamento: PIX/TapTapSend\nData: ${new Date().toLocaleString()}`;
   let numero="5518991857067";
   let link=`https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
   window.open(link,"_blank");
-  cart=[]; total=0; atualizarTotal();
+  limparCarrinho();
 }
 </script></body>
 </html>
