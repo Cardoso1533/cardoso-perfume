@@ -3,19 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perfume Cardoso</title>
+<title>Cardoso Perfume</title>
 <style>
+/* Fundo personalizado */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background-color: #0a0a0a;
-  background-image: url('logo.png');
-  background-repeat: repeat;
-  background-position: center;
-  background-size: 150px 150px;
-  background-attachment: fixed;
   color: #fff;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
 }
+body::before {
+  content: "CARDOSO PERFUME";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 120px;
+  color: rgba(255,235,59,0.05);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Header */
 header {
   position: fixed;
   top: 0;
@@ -23,144 +35,146 @@ header {
   background: rgba(17,17,17,0.95);
   padding: 15px 20px;
   text-align: center;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
   color: #ffeb3b;
   box-shadow: 0 2px 5px rgba(0,0,0,0.5);
   z-index: 10;
 }
+/* Container */
 .container {
-  padding: 100px 20px 20px;
+  padding: 120px 20px 20px;
   max-width: 500px;
   margin: auto;
   backdrop-filter: blur(8px);
   background: rgba(0,0,0,0.6);
-  border-radius: 10px;
+  border-radius: 15px;
+  position: relative;
+  z-index: 1;
 }
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-input[type="number"] {
-  width: 100%;
-  padding: 8px;
-  border-radius: 5px;
-  border: none;
-  margin-bottom: 10px;
-}
-button {
-  background: #ffeb3b;
+/* Cards de pacotes */
+.card {
+  background: linear-gradient(135deg, #ffeb3b, #ffc107);
   color: #000;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 5px;
-  transition: opacity 0.2s;
-}
-button:hover {
-  opacity: 0.8;
-}
-.cart-box {
-  margin-top: 15px;
-  background: rgba(34,34,34,0.9);
-  padding: 10px;
-  border-radius: 10px;
-}
-.cart-item {
+  padding: 15px 20px;
+  margin: 15px 0;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   display: flex;
   justify-content: space-between;
-  padding: 5px 0;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+}
+.card button {
+  background: #000;
+  color: #ffeb3b;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.card button:hover {
+  background: #222;
+}
+/* Input personalizado */
+input[type="number"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin: 10px 0;
+  font-size: 16px;
+}
+/* Carrinho */
+.total-box {
+  margin-top: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #00ff00;
+  text-align: center;
+}
+/* PIX box */
 .pix-box {
   display: none;
   background: rgba(34,34,34,0.95);
   padding: 20px;
   margin-top: 20px;
   border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   text-align: center;
 }
-.pix-box p {
-  margin: 5px 0;
-  font-size: 16px;
+.pix-box img {
+  margin-top: 15px;
+  width: 200px;
+  height: 200px;
 }
+/* WhatsApp */
 a.whatsapp-btn {
   position: fixed;
   bottom: 20px;
   right: 20px;
   background: #25d366;
   color: #fff;
-  padding: 15px;
+  padding: 18px;
   border-radius: 50%;
-  font-size: 24px;
+  font-size: 28px;
   text-align: center;
   text-decoration: none;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   z-index: 10;
 }
 a.whatsapp-btn:hover {
   opacity: 0.8;
 }
-img.qr {
-  margin-top: 15px;
-  width: 200px;
-  height: 200px;
-}
-.total-box {
-  margin-top: 10px;
+button.generate {
+  width: 100%;
+  padding: 15px;
   font-size: 18px;
+  margin-top: 15px;
+  border-radius: 15px;
+  background: #ffeb3b;
+  color: #000;
   font-weight: bold;
-  color: #00ff00;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
 }
-.admin-panel {
-  margin-top: 20px;
-  background: rgba(26,26,26,0.9);
-  padding: 10px;
-  border-radius: 10px;
-}
-.admin-item {
-  padding: 5px 0;
-  border-bottom: 1px solid #555;
+button.generate:hover {
+  opacity: 0.8;
 }
 </style>
 </head>
 <body>
 
-<header>
-  Perfume Cardoso
-  <button style="position:absolute; right:20px; top:15px; padding:5px 10px;" onclick="toggleAdmin()">Admin</button>
-</header>
+<header>Cardoso Perfume</header>
 
 <div class="container">
+  <h3>Pacotes fixos:</h3>
+  <div class="card"><span>1.000 perfumes</span><span>R$ 0,60</span><button onclick="adicionarCarrinho(1000,0.6)">Comprar</button></div>
+  <div class="card"><span>10.000 perfumes</span><span>R$ 6,00</span><button onclick="adicionarCarrinho(10000,6)">Comprar</button></div>
+  <div class="card"><span>25.000 perfumes</span><span>R$ 15,00</span><button onclick="adicionarCarrinho(25000,15)">Comprar</button></div>
+  <div class="card"><span>50.000 perfumes</span><span>R$ 30,00</span><button onclick="adicionarCarrinho(50000,30)">Comprar</button></div>
+  <div class="card"><span>200.000 perfumes</span><span>R$ 120,00</span><button onclick="adicionarCarrinho(200000,120)">Comprar</button></div>
+  <div class="card"><span>500.000 perfumes</span><span>R$ 300,00</span><button onclick="adicionarCarrinho(500000,300)">Comprar</button></div>
 
-  <!-- Carrinho -->
-  <label for="quantidade">Digite a quantidade de perfumes:</label>
-  <input type="number" id="quantidade" placeholder="Ex: 1000" min="1">
+  <h3>Quantidade personalizada:</h3>
+  <input type="number" id="quantidade" placeholder="Digite a quantidade">
+  <button class="generate" onclick="adicionarPersonalizado()">Adicionar ao carrinho</button>
 
-  <button onclick="adicionarCarrinho()">Adicionar ao carrinho</button>
-
-  <div class="cart-box" id="carrinho">
-    <p><strong>Carrinho:</strong></p>
-    <div id="itensCarrinho"></div>
-    <div class="total-box" id="total">Total: R$ 0,00</div>
-  </div>
-
-  <button onclick="gerarPix()">Gerar PIX</button>
+  <div class="total-box" id="total">Total: R$ 0,00</div>
+  <button class="generate" onclick="gerarPix()">Gerar PIX</button>
 
   <div id="pagamento" class="pix-box">
     <h2>Pagamento via PIX</h2>
     <p><strong>Chave PIX (CPF):</strong> 44879579823</p>
     <p id="valorFinal"></p>
     <img id="qrcode" class="qr" />
-  </div>
-
-  <!-- Painel Admin -->
-  <div id="admin" class="admin-panel" style="display:none;">
-    <h3>Pedidos Registrados</h3>
-    <div id="pedidos"></div>
   </div>
 </div>
 
@@ -169,69 +183,34 @@ img.qr {
 <script>
 let carrinho = [];
 let total = 0;
-let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
 
-function atualizarCarrinho(){
-  const itensDiv = document.getElementById("itensCarrinho");
-  itensDiv.innerHTML = '';
-  carrinho.forEach((item,index)=>{
-    const div = document.createElement('div');
-    div.className='cart-item';
-    div.innerHTML = `Item ${index+1}: ${item.quantidade} perfumes - R$ ${item.valor.toFixed(2)}`;
-    itensDiv.appendChild(div);
-  });
-  document.getElementById("total").innerHTML="Total: R$ "+total.toFixed(2);
+function atualizarTotal(){
+  document.getElementById("total").innerText = "Total: R$ " + total.toFixed(2);
 }
 
-function adicionarCarrinho(){
-  const quantidade = parseInt(document.getElementById("quantidade").value)||0;
-  if(quantidade<=0){alert("Digite uma quantidade válida!");return;}
-  const valor=(quantidade/1000)*0.6;
-  total+=valor;
-  carrinho.push({quantidade,valor});
-  atualizarCarrinho();
+function adicionarCarrinho(quantidade, valor){
+  carrinho.push({quantidade, valor});
+  total += valor;
+  atualizarTotal();
+}
+
+function adicionarPersonalizado(){
+  const quantidade = parseInt(document.getElementById("quantidade").value) || 0;
+  if(quantidade <=0){alert("Digite uma quantidade válida!"); return;}
+  const valor = (quantidade/1000)*0.6;
+  adicionarCarrinho(quantidade, valor);
   document.getElementById("quantidade").value='';
 }
 
 function gerarPix(){
-  if(total<=0){alert("Adicione pelo menos um item ao carrinho!");return;}
-  const totalPerfumes=carrinho.reduce((acc,item)=>acc+item.quantidade,0);
-
-  // Salvar pedido
-  const novoPedido={id:Date.now(),total,totalPerfumes,data:new Date().toLocaleString()};
-  pedidos=[novoPedido,...pedidos];
-  localStorage.setItem("pedidos",JSON.stringify(pedidos));
-
-  const pagamento=document.getElementById("pagamento");
-  pagamento.style.display='block';
-  document.getElementById("valorFinal").innerHTML=`<strong>Quantidade total:</strong> ${totalPerfumes}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
+  if(total <=0){alert("Adicione pelo menos um item!"); return;}
+  const totalPerfumes = carrinho.reduce((acc,item)=>acc+item.quantidade,0);
+  document.getElementById("pagamento").style.display="block";
+  document.getElementById("valorFinal").innerHTML = `<strong>Quantidade total:</strong> ${totalPerfumes}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
   const pixTexto=`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QUANTIDADE TOTAL: ${totalPerfumes}`;
   document.getElementById("qrcode").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(pixTexto);
-
-  // Reset carrinho
-  carrinho=[]; total=0; atualizarCarrinho();
+  carrinho=[]; total=0; atualizarTotal();
 }
-
-function toggleAdmin(){
-  const adminDiv=document.getElementById("admin");
-  adminDiv.style.display=adminDiv.style.display==='none'?'block':'none';
-  atualizarPedidos();
-}
-
-function atualizarPedidos(){
-  const pedidosDiv=document.getElementById("pedidos");
-  pedidosDiv.innerHTML='';
-  if(pedidos.length===0){pedidosDiv.innerHTML="<p>Nenhum pedido registrado.</p>";return;}
-  pedidos.forEach(p=>{
-    const div=document.createElement('div');
-    div.className='admin-item';
-    div.innerHTML=`ID: ${p.id}<br>Quantidade: ${p.totalPerfumes}<br>Valor: R$ ${p.total.toFixed(2)}<br><small>${p.data}</small>`;
-    pedidosDiv.appendChild(div);
-  });
-}
-
-// Inicializa painel com pedidos salvos
-atualizarPedidos();
 </script>
 
 </body>
