@@ -45,6 +45,9 @@ a{
   display:block;
   margin-top:10px;
 }
+img{
+  margin-top:15px;
+}
 </style>
 </head>
 <body>
@@ -76,6 +79,9 @@ a{
     <p><strong>Chave PIX (CPF):</strong></p>
     <p>44879579823</p>
     <p id="valor"></p>
+
+    <img id="qrcode" width="200" />
+
     <a href="https://wa.me/5518991857067" target="_blank">
       Enviar comprovante no WhatsApp
     </a>
@@ -88,6 +94,12 @@ function pagar(valor){
   document.getElementById("pagamento").style.display = "block";
   document.getElementById("valor").innerHTML = 
     "<strong>Valor a pagar:</strong> R$ " + valor.toFixed(2);
+
+  const pixTexto = "PIX CPF 44879579823 VALOR " + valor.toFixed(2);
+  const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(pixTexto);
+
+  document.getElementById("qrcode").src = qrUrl;
+
   window.scrollTo(0, document.body.scrollHeight);
 }
 </script>
