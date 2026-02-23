@@ -15,7 +15,7 @@ header { position:fixed; top:0; width:100%; background:rgba(17,17,17,0.95); padd
 .card button:hover { background:#222;}
 input[type="number"] { width:100%; padding:12px; border-radius:10px; border:none; margin:10px 0; font-size:16px; }
 .total-box { margin-top:10px; font-size:20px; font-weight:bold; color:#00ff00; text-align:center; }
-.pix-box { display:none; background:rgba(34,34,34,0.95); padding:20px; margin-top:20px; border-radius:15px; text-align:center; }
+.pix-box, .taptap-box { display:none; background:rgba(34,34,34,0.95); padding:20px; margin-top:20px; border-radius:15px; text-align:center; }
 .pix-box img { margin-top:15px; width:200px; height:200px; }
 button.generate,input[type="submit"],button.copy-btn { width:100%; padding:15px; font-size:18px; margin-top:15px; border-radius:15px; background:#ffeb3b; color:#000; font-weight:bold; cursor:pointer; border:none; transition:opacity 0.2s;}
 button.generate:hover,input[type="submit"]:hover,button.copy-btn:hover{opacity:0.8;}
@@ -37,58 +37,53 @@ a.whatsapp-btn:hover { opacity:0.8; }
 <button class="generate" onclick="addCustom()">Adicionar ao carrinho</button>
 
 <div class="total-box" id="total">Total: R$ 0,00</div>
-<button class="generate" onclick="gerarPix()">Gerar PIX</button>
+<button class="generate" onclick="gerarPagamento()">Gerar Pagamento</button>
 
-<div id="pagamento" class="pix-box">
-<h2>Pagamento via PIX</h2>
+<div id="pagamentoPIX" class="pix-box">
+<h2>Pagamento via PIX / PicPay</h2>
 <p><strong>Chave PIX (CPF):</strong> 44879579823</p>
-<p id="valorFinal"></p>
-<img id="qrcode">
+<p id="valorFinalPIX"></p>
+<img id="qrcodePIX">
 <button class="copy-btn" onclick="copiarPix()">Copiar PIX</button>
-<p id="tempoEntrega"><strong>Entrega:</strong> Calculando...</p>
-
-<h2>Pagamentos internacionais</h2>
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-<input type="hidden" name="cmd" value="_xclick">
-<input type="hidden" name="business" value="danilocardoso590@gmail.com">
-<input type="hidden" name="item_name" value="Perfume Cardoso">
-<input type="hidden" name="amount" id="valorUSD" value="0">
-<input type="hidden" name="currency_code" value="USD">
-<input type="submit" value="Pagar em USD">
-</form>
-
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-<input type="hidden" name="cmd" value="_xclick">
-<input type="hidden" name="business" value="danilocardoso590@gmail.com">
-<input type="hidden" name="item_name" value="Perfume Cardoso">
-<input type="hidden" name="amount" id="valorEUR" value="0">
-<input type="hidden" name="currency_code" value="EUR">
-<input type="submit" value="Pagar em EUR">
-</form>
-
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-<input type="hidden" name="cmd" value="_xclick">
-<input type="hidden" name="business" value="danilocardoso590@gmail.com">
-<input type="hidden" name="item_name" value="Perfume Cardoso">
-<input type="hidden" name="amount" id="valorARS" value="0">
-<input type="hidden" name="currency_code" value="ARS">
-<input type="submit" value="Pagar em ARS">
-</form>
-</div>
+<p id="tempoEntregaPIX"><strong>Entrega:</strong> Calculando...</p>
 </div>
 
+<div id="pagamentoTapTap" class="taptap-box">
+<h2>Pagamento Internacional (Tap Tap Send)</h2>
+<p>Abra o app Tap Tap Send e envie o valor total para:</p>
+<p><strong>Email/Conta:</strong> danilocardoso590@gmail.com</p>
+<p><strong>Valor total:</strong> <span id="valorFinalTapTap"></span></p>
+<button onclick="abrirTapTap()">Abrir Tap Tap Send</button>
+<a href="https://wa.me/5518991857067?text=Quero%20pagar%20via%20TapTapSend%20o%20valor%20de%20TOTAL" target="_blank">
+  Enviar pedido por WhatsApp
+</a>
+</div>
+
+</div>
 <a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a>
 
 <script>
 let cart=[],total=0,entregaDeadline=null,entregaInterval=null;
-const taxaUSD=5,taxaEUR=5.5,taxaARS=0.027;
+const taxaEUR=5.5; // taxa só para referência se quiser calcular EUR
 
 function atualizarTotal(){document.getElementById("total").innerText="Total: R$ "+total.toFixed(2);}
 function addCart(q,v){cart.push({q,v});total+=v;atualizarTotal();}
 function addCustom(){let q=parseInt(document.getElementById("quantidade").value)||0;if(q<=0){alert("Digite uma quantidade válida!");return;}let v=(q/1000)*0.6;addCart(q,v);document.getElementById("quantidade").value='';}
-function iniciarEntrega(){if(!entregaDeadline)return;clearInterval(entregaInterval);entregaInterval=setInterval(()=>{let now=new Date().getTime(),dist=entregaDeadline-now;if(dist<=0){clearInterval(entregaInterval);document.getElementById("tempoEntrega").innerHTML="<strong>Entrega:</strong> Pedido entregue!";return;}let h=Math.floor(dist/(1000*60*60)),m=Math.floor((dist%(1000*60*60))/(1000*60)),s=Math.floor((dist%(1000*60))/1000);document.getElementById("tempoEntrega").innerHTML=`<strong>Entrega:</strong> ${h}h ${m}m ${s}s`;},1000);}
-function gerarPix(){if(total<=0){alert("Adicione pelo menos um item!");return;}let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);document.getElementById("pagamento").style.display="block";document.getElementById("valorFinal").innerHTML=`<strong>Quantidade total:</strong> ${totalPerf}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;document.getElementById("qrcode").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QTD ${totalPerf}`);entregaDeadline=new Date().getTime()+24*60*60*1000;iniciarEntrega();document.getElementById("valorUSD").value=(total/taxaUSD).toFixed(2);document.getElementById("valorEUR").value=(total/taxaEUR).toFixed(2);document.getElementById("valorARS").value=(total/taxaARS).toFixed(2);}
+function iniciarEntrega(){if(!entregaDeadline)return;clearInterval(entregaInterval);entregaInterval=setInterval(()=>{let now=new Date().getTime(),dist=entregaDeadline-now;if(dist<=0){clearInterval(entregaInterval);document.getElementById("tempoEntregaPIX").innerHTML="<strong>Entrega:</strong> Pedido entregue!";return;}let h=Math.floor(dist/(1000*60*60)),m=Math.floor((dist%(1000*60*60))/(1000*60)),s=Math.floor((dist%(1000*60))/1000);document.getElementById("tempoEntregaPIX").innerHTML=`<strong>Entrega:</strong> ${h}h ${m}m ${s}s`;},1000);}
+function gerarPagamento(){
+  if(total<=0){alert("Adicione pelo menos um item!"); return;}
+  // PIX
+  let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);
+  document.getElementById("pagamentoPIX").style.display="block";
+  document.getElementById("valorFinalPIX").innerHTML=`<strong>Quantidade total:</strong> ${totalPerf}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
+  document.getElementById("qrcodePIX").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QTD ${totalPerf}`);
+  entregaDeadline=new Date().getTime()+24*60*60*1000;iniciarEntrega();
+  // TapTap
+  document.getElementById("pagamentoTapTap").style.display="block";
+  document.getElementById("valorFinalTapTap").innerText="R$ "+total.toFixed(2);
+}
 function copiarPix(){let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);let val=total.toFixed(2);navigator.clipboard.writeText(`PIX CPF 44879579823 VALOR R$ ${val} QTD ${totalPerf}`).then(()=>{alert("PIX copiado!");});cart=[];total=0;atualizarTotal();}
+function abrirTapTap(){window.location.href="taptapsend://";}
 </script>
 </body>
 </html>
