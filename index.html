@@ -66,6 +66,7 @@ a.whatsapp-btn:hover { opacity:0.8; }
 
 <script>
 let cart=[],total=0,entregaDeadline=null,entregaInterval=null;
+
 function atualizarTotal(){document.getElementById("total").innerText="Total: R$ "+total.toFixed(2);}
 function addCart(q,v){cart.push({q,v});total+=v;atualizarTotal();}
 function addCustom(){let q=parseInt(document.getElementById("quantidade").value)||0;if(q<=0){alert("Digite uma quantidade válida!");return;}let v=(q/1000)*0.6;addCart(q,v);document.getElementById("quantidade").value='';}
@@ -78,10 +79,12 @@ function gerarPagamento(){
   document.getElementById("valorFinalPIX").innerHTML=`<strong>Quantidade total:</strong> ${totalPerf}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
   document.getElementById("qrcodePIX").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QTD ${totalPerf}`);
   entregaDeadline=new Date().getTime()+24*60*60*1000;iniciarEntrega();
-  // TapTap
+
+  // TapTapSend
   document.getElementById("pagamentoTapTap").style.display="block";
   document.getElementById("valorFinalTapTap").innerText="R$ "+total.toFixed(2);
 }
+
 function copiarPix(){let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);let val=total.toFixed(2);navigator.clipboard.writeText(`PIX CPF 44879579823 VALOR R$ ${val} QTD ${totalPerf}`).then(()=>{alert("PIX copiado!");});cart=[];total=0;atualizarTotal();}
 function abrirTapTap(){window.location.href="taptapsend://";}
 </script>
