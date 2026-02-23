@@ -5,55 +5,97 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Perfume Cardoso</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#000;
-  color:#fff;
-  text-align:center;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0a0a0a;
+  color: #fff;
 }
-.container{
-  padding:20px;
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: #111;
+  padding: 15px 20px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffeb3b;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  z-index: 10;
 }
-.card{
-  background:#111;
-  padding:15px;
-  margin:15px 0;
-  border-radius:10px;
+.container {
+  padding: 100px 20px 20px;
+  max-width: 500px;
+  margin: auto;
 }
-button{
-  background:#00c853;
-  color:white;
-  border:none;
-  padding:10px 20px;
-  border-radius:8px;
-  font-size:16px;
-  cursor:pointer;
+.card {
+  background: #1a1a1a;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  transition: transform 0.2s;
 }
-button:hover{
-  opacity:0.8;
+.card:hover {
+  transform: translateY(-3px);
 }
-.pix-box{
-  margin-top:20px;
-  padding:15px;
-  background:#111;
-  border-radius:10px;
+button {
+  background: #ffeb3b;
+  color: #000;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: opacity 0.2s;
 }
-a{
-  color:#00e676;
-  text-decoration:none;
-  display:block;
-  margin-top:10px;
+button:hover {
+  opacity: 0.8;
 }
-img{
-  margin-top:15px;
+.pix-box {
+  display: none;
+  background: #222;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  text-align: center;
+}
+.pix-box p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+a.whatsapp-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #25d366;
+  color: #fff;
+  padding: 15px;
+  border-radius: 50%;
+  font-size: 24px;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  z-index: 10;
+}
+a.whatsapp-btn:hover {
+  opacity: 0.8;
+}
+img.qr {
+  margin-top: 15px;
+  width: 200px;
+  height: 200px;
 }
 </style>
 </head>
 <body>
 
+<header>Perfume Cardoso</header>
+
 <div class="container">
-  <h1>Perfume Cardoso</h1>
   <p>Escolha seu pacote:</p>
 
   <div class="card">
@@ -74,33 +116,28 @@ img{
     <button onclick="pagar(15.00)">Comprar</button>
   </div>
 
-  <div id="pagamento" class="pix-box" style="display:none;">
+  <div id="pagamento" class="pix-box">
     <h2>Pagamento via PIX</h2>
     <p><strong>Chave PIX (CPF):</strong></p>
     <p>44879579823</p>
     <p id="valor"></p>
-
-    <img id="qrcode" width="200" />
-
-    <a href="https://wa.me/5518991857067" target="_blank">
-      Enviar comprovante no WhatsApp
-    </a>
+    <img id="qrcode" class="qr" />
   </div>
-
 </div>
+
+<a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a>
 
 <script>
 function pagar(valor){
-  document.getElementById("pagamento").style.display = "block";
-  document.getElementById("valor").innerHTML = 
-    "<strong>Valor a pagar:</strong> R$ " + valor.toFixed(2);
+  const pagamento = document.getElementById("pagamento");
+  pagamento.style.display = "block";
+  document.getElementById("valor").innerHTML = "<strong>Valor a pagar:</strong> R$ " + valor.toFixed(2);
 
   const pixTexto = "PIX CPF 44879579823 VALOR " + valor.toFixed(2);
   const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(pixTexto);
-
   document.getElementById("qrcode").src = qrUrl;
 
-  window.scrollTo(0, document.body.scrollHeight);
+  window.scrollTo({top: pagamento.offsetTop, behavior: 'smooth'});
 }
 </script>
 
