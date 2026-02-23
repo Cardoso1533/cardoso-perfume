@@ -7,12 +7,12 @@
 body { margin:0; font-family:Arial; background:linear-gradient(135deg,#8B0000,#000); color:#fff; min-height:100vh; position:relative; }
 body::before { content:"CARDOSO PERFUME"; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-30deg); font-size:120px; color:rgba(255,235,59,0.05); pointer-events:none; z-index:0; }
 header { position:fixed; top:0; width:100%; background:rgba(17,17,17,0.95); padding:15px 20px; text-align:center; font-size:28px; font-weight:bold; color:#ffeb3b; z-index:10; }
-.container { padding:120px 20px 20px; max-width:500px; margin:auto; backdrop-filter:blur(8px); background:rgba(0,0,0,0.6); border-radius:15px; z-index:1; position:relative; }
+.container { padding:140px 20px 20px; max-width:500px; margin:auto; backdrop-filter:blur(8px); background:rgba(0,0,0,0.6); border-radius:15px; z-index:1; position:relative; }
 .card { background:linear-gradient(135deg,#ff0000,#8B0000); color:#fff; padding:15px 20px; margin:15px 0; border-radius:15px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition: transform 0.2s, box-shadow 0.2s; }
 .card:hover { transform:translateY(-5px); box-shadow:0 6px 20px rgba(0,0,0,0.7);}
 .card button { background:#000; color:#ffeb3b; border:none; padding:10px 15px; border-radius:10px; font-weight:bold; cursor:pointer;}
 .card button:hover { background:#222;}
-input[type="number"] { width:100%; padding:12px; border-radius:10px; border:none; margin:10px 0; font-size:16px; }
+input[type="number"], input[type="text"] { width:100%; padding:12px; border-radius:10px; border:none; margin:10px 0; font-size:16px; }
 .total-box { margin-top:10px; font-size:20px; font-weight:bold; color:#00ff00; text-align:center; }
 .pix-box, .taptap-box { display:none; background:rgba(34,34,34,0.95); padding:20px; margin-top:20px; border-radius:15px; text-align:center; }
 .pix-box img { margin-top:15px; width:200px; height:200px; }
@@ -25,7 +25,9 @@ a.whatsapp-btn:hover { opacity:0.8; }
 <body>
 <header>Cardoso Perfume</header>
 <div class="container">
-  <h3>Pacotes fixos:</h3>
+  <h3>Informações do cliente:</h3>
+  <input type="text" id="nomeCliente" placeholder="Seu nome" required>
+  <input type="text" id="whatsappCliente" placeholder="Seu WhatsApp" required>  <h3>Pacotes fixos:</h3>
   <div class="card"><span>1.000 perfumes</span><span>R$ 0,60</span><button onclick="addCart(1000,0.6)">Comprar</button></div>
   <div class="card"><span>10.000 perfumes</span><span>R$ 6,00</span><button onclick="addCart(10000,6)">Comprar</button></div>
   <div class="card"><span>25.000 perfumes</span><span>R$ 15,00</span><button onclick="addCart(25000,15)">Comprar</button></div>
@@ -46,74 +48,43 @@ a.whatsapp-btn:hover { opacity:0.8; }
     <button onclick="abrirTapTap()">Abrir TapTapSend</button>
   </div><button onclick="enviarWhatsApp()" class="generate">Enviar Pedido pelo WhatsApp</button>
 
-</div><a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a>
-
-<script>
+</div>
+<a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a><script>
 let cart=[],total=0,entregaDeadline=null,entregaInterval=null;
+const custoPor1000 = 0.40; // custo por 1000 perfumes
 
-function atualizarTotal(){
-  document.getElementById("total").innerText="Total: R$ "+total.toFixed(2);
-}
+function atualizarTotal(){ document.getElementById("total").innerText="Total: R$ "+total.toFixed(2); }
+function addCart(q,v){ cart.push({q,v}); total+=v; atualizarTotal(); }
+function addCustom(){ let q=parseInt(document.getElementById("quantidade").value)||0; if(q<=0){ alert("Digite uma quantidade válida!"); return; } let v=(q/1000)*0.6; addCart(q,v); document.getElementById("quantidade").value=''; }
 
-function addCart(q,v){
-  cart.push({q,v});
-  total+=v;
-  atualizarTotal();
-}
-
-function addCustom(){
-  let q=parseInt(document.getElementById("quantidade").value)||0;
-  if(q<=0){alert("Digite uma quantidade válida!"); return;}
-  let v=(q/1000)*0.6;
-  addCart(q,v);
-  document.getElementById("quantidade").value='';
-}
-
-function iniciarEntrega(){
-  if(!entregaDeadline) return;
-  clearInterval(entregaInterval);
-  entregaInterval=setInterval(()=>{
-    let now=new Date().getTime(), dist=entregaDeadline-now;
-    if(dist<=0){
-      clearInterval(entregaInterval);
-      document.getElementById("tempoEntregaPIX").innerHTML="<strong>Entrega:</strong> Pedido entregue!";
-      return;
-    }
-    let h=Math.floor(dist/(1000*60*60)), m=Math.floor((dist%(1000*60*60))/(1000*60)), s=Math.floor((dist%(1000*60))/1000);
-    document.getElementById("tempoEntregaPIX").innerHTML=`<strong>Entrega:</strong> ${h}h ${m}m ${s}s`;
-  },1000);
-}
+function iniciarEntrega(){ if(!entregaDeadline) return; clearInterval(entregaInterval); entregaInterval=setInterval(()=>{ let now=new Date().getTime(), dist=entregaDeadline-now; if(dist<=0){ clearInterval(entregaInterval); document.getElementById("tempoEntregaPIX").innerHTML="<strong>Entrega:</strong> Pedido entregue!"; return; } let h=Math.floor(dist/(1000*60*60)), m=Math.floor((dist%(1000*60*60))/(1000*60)), s=Math.floor((dist%(1000*60))/1000); document.getElementById("tempoEntregaPIX").innerHTML=`<strong>Entrega:</strong> ${h}h ${m}m ${s}s`; },1000); }
 
 function gerarPagamento(){
-  if(total<=0){alert("Adicione pelo menos um item!"); return;}
+  if(total<=0){ alert("Adicione pelo menos um item!"); return; }
   let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);
-
   // PIX
   document.getElementById("pagamentoPIX").style.display="block";
   document.getElementById("valorFinalPIX").innerHTML=`<strong>Quantidade total:</strong> ${totalPerf}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
   document.getElementById("qrcodePIX").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QTD ${totalPerf}`);
   entregaDeadline=new Date().getTime()+24*60*60*1000;
   iniciarEntrega();
-
   // TapTapSend
   document.getElementById("pagamentoTapTap").style.display="block";
   document.getElementById("valorFinalTapTap").innerText="R$ "+total.toFixed(2);
 }
 
-function copiarPix(){
-  let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);
-  let val=total.toFixed(2);
-  navigator.clipboard.writeText(`PIX CPF 44879579823 VALOR R$ ${val} QTD ${totalPerf}`).then(()=>{alert("PIX copiado!");});
-  cart=[]; total=0; atualizarTotal();
-}
-
+function copiarPix(){ let totalPerf=cart.reduce((acc,it)=>acc+it.q,0); let val=total.toFixed(2); navigator.clipboard.writeText(`PIX CPF 44879579823 VALOR R$ ${val} QTD ${totalPerf}`).then(()=>{ alert("PIX copiado!"); }); cart=[]; total=0; atualizarTotal(); }
 function abrirTapTap(){ window.location.href="taptapsend://"; }
 
 function enviarWhatsApp(){
-  if(cart.length===0){alert("Adicione produtos antes de enviar o pedido!"); return;}
+  const nome = document.getElementById("nomeCliente").value.trim();
+  const whatsapp = document.getElementById("whatsappCliente").value.trim();
+  if(!nome || !whatsapp){ alert("Preencha seu nome e WhatsApp antes de enviar o pedido!"); return; }
+  if(cart.length===0){ alert("Adicione produtos antes de enviar o pedido!"); return; }
   let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);
+  let lucro = total - (totalPerf/1000)*custoPor1000;
   let valorTotal=total.toFixed(2);
-  let mensagem=`Olá! Realizei um pedido:\nQuantidade: ${totalPerf}\nValor: R$ ${valorTotal}\nPagamento: PIX/TapTapSend\nData: ${new Date().toLocaleString()}`;
+  let mensagem=`Olá! Pedido de ${nome} (${whatsapp}):\nQuantidade: ${totalPerf}\nValor: R$ ${valorTotal}\nLucro estimado: R$ ${lucro.toFixed(2)}\nPagamento: PIX/TapTapSend\nData: ${new Date().toLocaleString()}`;
   let numero="5518991857067";
   let link=`https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
   window.open(link,"_blank");
