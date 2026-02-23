@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cardoso Perfume</title>
 <style>
-/* Fundo degradê vermelho e preto */
+/* Fundo degradê vermelho/preto */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -114,7 +114,7 @@ input[type="number"] {
   width: 200px;
   height: 200px;
 }
-button.generate {
+button.generate, input[type="submit"] {
   width: 100%;
   padding: 15px;
   font-size: 18px;
@@ -127,18 +127,20 @@ button.generate {
   border: none;
   transition: opacity 0.2s;
 }
-button.generate:hover {
+button.generate:hover, input[type="submit"]:hover {
   opacity: 0.8;
 }
 button.copy-btn {
-  margin-top:10px;
-  padding:10px 20px;
+  display: block;
+  margin: 15px auto 0 auto;
+  padding: 10px 20px;
   border:none;
   border-radius:10px;
   background:#ffeb3b;
   color:#000;
   font-weight:bold;
   cursor:pointer;
+  font-size:16px;
 }
 button.copy-btn:hover{
   opacity:0.8;
@@ -173,4 +175,134 @@ a.whatsapp-btn:hover {
   <div class="card"><span>10.000 perfumes</span><span>R$ 6,00</span><button onclick="adicionarCarrinho(10000,6)">Comprar</button></div>
   <div class="card"><span>25.000 perfumes</span><span>R$ 15,00</span><button onclick="adicionarCarrinho(25000,15)">Comprar</button></div>
   <div class="card"><span>50.000 perfumes</span><span>R$ 30,00</span><button onclick="adicionarCarrinho(50000,30)">Comprar</button></div>
-  <div class="card"><span>200.000 perfumes</span><span>
+  <div class="card"><span>200.000 perfumes</span><span>R$ 120,00</span><button onclick="adicionarCarrinho(200000,120)">Comprar</button></div>
+  <div class="card"><span>500.000 perfumes</span><span>R$ 300,00</span><button onclick="adicionarCarrinho(500000,300)">Comprar</button></div>
+
+  <h3>Quantidade personalizada:</h3>
+  <input type="number" id="quantidade" placeholder="Digite a quantidade">
+  <button class="generate" onclick="adicionarPersonalizado()">Adicionar ao carrinho</button>
+
+  <div class="total-box" id="total">Total: R$ 0,00</div>
+  <button class="generate" onclick="gerarPix()">Gerar PIX</button>
+
+  <div id="pagamento" class="pix-box">
+    <h2>Pagamento via PIX</h2>
+    <p><strong>Chave PIX (CPF):</strong> 44879579823</p>
+    <p id="valorFinal"></p>
+    <img id="qrcode" class="qr" />
+    <button class="copy-btn" onclick="copiarPix()">Copiar PIX</button>
+    <p id="tempoEntrega"><strong>Entrega:</strong> Calculando...</p>
+
+    <h2>Pagamentos Internacionais</h2>
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_xclick">
+      <input type="hidden" name="business" value="SEU_EMAIL_PAYPAL">
+      <input type="hidden" name="item_name" value="Perfume Cardoso">
+      <input type="hidden" name="amount" id="valorUSD" value="0">
+      <input type="hidden" name="currency_code" value="USD">
+      <input type="submit" value="Pagar em USD">
+    </form>
+
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_xclick">
+      <input type="hidden" name="business" value="SEU_EMAIL_PAYPAL">
+      <input type="hidden" name="item_name" value="Perfume Cardoso">
+      <input type="hidden" name="amount" id="valorEUR" value="0">
+      <input type="hidden" name="currency_code" value="EUR">
+      <input type="submit" value="Pagar em EUR">
+    </form>
+
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+      <input type="hidden" name="cmd" value="_xclick">
+      <input type="hidden" name="business" value="SEU_EMAIL_PAYPAL">
+      <input type="hidden" name="item_name" value="Perfume Cardoso">
+      <input type="hidden" name="amount" id="valorARS" value="0">
+      <input type="hidden" name="currency_code" value="ARS">
+      <input type="submit" value="Pagar em ARS">
+    </form>
+  </div>
+</div>
+
+<a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a>
+
+<script>
+let carrinho = [];
+let total = 0;
+let entregaDeadline = null;
+let entregaInterval = null;
+
+// Taxas de conversão
+const taxaUSD = 5;   // 1 USD = 5 R$
+const taxaEUR = 5.5; // 1 EUR = 5,5 R$
+const taxaARS = 0.027; // 1 ARS = 0,027 R$
+
+function atualizarTotal(){
+  document.getElementById("total").innerText = "Total: R$ " + total.toFixed(2);
+}
+
+function adicionarCarrinho(quantidade, valor){
+  carrinho.push({quantidade, valor});
+  total += valor;
+  atualizarTotal();
+}
+
+function adicionarPersonalizado(){
+  const quantidade = parseInt(document.getElementById("quantidade").value) || 0;
+  if(quantidade <=0){alert("Digite uma quantidade válida!"); return;}
+  const valor = (quantidade/1000)*0.6;
+  adicionarCarrinho(quantidade, valor);
+  document.getElementById("quantidade").value='';
+}
+
+function iniciarEntregaCountdown() {
+  if (!entregaDeadline) return;
+  clearInterval(entregaInterval);
+  entregaInterval = setInterval(() => {
+    const now = new Date().getTime();
+    const distancia = entregaDeadline - now;
+    if(distancia <= 0){
+      clearInterval(entregaInterval);
+      document.getElementById("tempoEntrega").innerHTML = "<strong>Entrega:</strong> Pedido entregue!";
+      return;
+    }
+    const horas = Math.floor((distancia / (1000 * 60 * 60)));
+    const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+    const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
+    document.getElementById("tempoEntrega").innerHTML =
+      `<strong>Entrega:</strong> ${horas}h ${minutos}m ${segundos}s`;
+  }, 1000);
+}
+
+function gerarPix(){
+  if(total <=0){alert("Adicione pelo menos um item!"); return;}
+  const totalPerfumes = carrinho.reduce((acc,item)=>acc+item.quantidade,0);
+  document.getElementById("pagamento").style.display="block";
+  document.getElementById("valorFinal").innerHTML = `<strong>Quantidade total:</strong> ${totalPerfumes}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
+  const pixTexto=`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QUANTIDADE TOTAL: ${totalPerfumes}`;
+  document.getElementById("qrcode").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(pixTexto);
+
+  // Temporizador 24h
+  entregaDeadline = new Date().getTime() + 24*60*60*1000;
+  iniciarEntregaCountdown();
+
+  // Atualiza valores PayPal
+  document.getElementById("valorUSD").value = (total / taxaUSD).toFixed(2);
+  document.getElementById("valorEUR").value = (total / taxaEUR).toFixed(2);
+  document.getElementById("valorARS").value = (total / taxaARS).toFixed(2);
+}
+
+function copiarPix(){
+  const totalPerfumes = carrinho.reduce((acc,item)=>acc+item.quantidade,0);
+  const valorTotal = total.toFixed(2);
+  const texto = `PIX CPF 44879579823 VALOR R$ ${valorTotal} QUANTIDADE TOTAL: ${totalPerfumes}`;
+  navigator.clipboard.writeText(texto).then(()=>{
+    alert("PIX copiado para a área de transferência!");
+  });
+  carrinho = [];
+  total = 0;
+  atualizarTotal();
+}
+</script>
+
+</body>
+</html>
