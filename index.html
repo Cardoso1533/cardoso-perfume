@@ -1,9 +1,11 @@
-<!DOCTYPE html><html lang="pt-br">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cardoso Perfume</title>
 <style>
+/* --- Estilos resumidos para carrinho e fundo --- */
 body { margin:0; font-family:Arial; background:linear-gradient(135deg,#8B0000,#000); color:#fff; min-height:100vh; position:relative; }
 body::before { content:"CARDOSO PERFUME"; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-30deg); font-size:120px; color:rgba(255,235,59,0.05); pointer-events:none; z-index:0; }
 header { position:fixed; top:0; width:100%; background:rgba(17,17,17,0.95); padding:15px 20px; text-align:center; font-size:28px; font-weight:bold; color:#ffeb3b; z-index:10; }
@@ -29,65 +31,92 @@ a.whatsapp-btn:hover { opacity:0.8; }
 <div class="container">
   <h3>Informações do cliente:</h3>
   <input type="text" id="nomeCliente" placeholder="Seu nome" required>
-  <input type="text" id="whatsappCliente" placeholder="Seu WhatsApp" required>  <h3>Pacotes fixos:</h3>
+  <input type="text" id="whatsappCliente" placeholder="Seu WhatsApp" required>
+
+  <h3>Pacotes fixos:</h3>
   <div class="card"><span>1.000 perfumes</span><span>R$ 0,60</span><button onclick="addCart(1000,0.6)">Comprar</button></div>
   <div class="card"><span>10.000 perfumes</span><span>R$ 6,00</span><button onclick="addCart(10000,6)">Comprar</button></div>
   <div class="card"><span>25.000 perfumes</span><span>R$ 15,00</span><button onclick="addCart(25000,15)">Comprar</button></div>
-  <div class="card"><span>50.000 perfumes</span><span>R$ 30,00</span><button onclick="addCart(50000,30)">Comprar</button></div>  <h3>Quantidade personalizada:</h3>
+  <div class="card"><span>50.000 perfumes</span><span>R$ 30,00</span><button onclick="addCart(50000,30)">Comprar</button></div>
+
+  <h3>Quantidade personalizada:</h3>
   <input type="number" id="quantidade" placeholder="Digite a quantidade">
-  <button class="generate" onclick="addCustom()">Adicionar ao carrinho</button>  <div class="carrinho-box" id="carrinhoBox">
+  <button class="generate" onclick="addCustom()">Adicionar ao carrinho</button>
+
+  <div class="carrinho-box" id="carrinhoBox">
     <h4>Carrinho:</h4>
     <ul id="listaCarrinho"></ul>
-  </div>  <div class="total-box" id="total">Total: R$ 0,00</div>
+  </div>
+
+  <div class="total-box" id="total">Total: R$ 0,00</div>
   <button class="generate" onclick="gerarPagamento()">Gerar Pagamento</button>
-  <button class="generate" onclick="limparCarrinho()">Limpar Carrinho</button>  <div class="relatorio-box" id="relatorioBox">
+  <button class="generate" onclick="limparCarrinho()">Limpar Carrinho</button>
+
+  <div class="relatorio-box" id="relatorioBox">
     <h4>Relatório de vendas:</h4>
     <p id="totalVendido">Total vendido: 0</p>
     <p id="lucroTotal">Lucro total: R$ 0,00</p>
-  </div>  <div id="pagamentoPIX" class="pix-box">
+  </div>
+
+  <div id="pagamentoPIX" class="pix-box">
     <h2>Pagamento via PIX / PicPay</h2>
     <p><strong>Chave PIX (CPF):</strong> 44879579823</p>
     <p id="valorFinalPIX"></p>
     <img id="qrcodePIX">
     <button class="copy-btn" onclick="copiarPix()">Copiar PIX</button>
     <p id="tempoEntregaPIX"><strong>Entrega:</strong> Calculando...</p>
-  </div>  <div id="pagamentoTapTap" class="taptap-box">
+  </div>
+
+  <div id="pagamentoTapTap" class="taptap-box">
     <h2>Pagamento Internacional (Tap Tap Send)</h2>
     <p>Email/Conta: danilocardoso5900@gmail.com</p>
     <p>Valor total: <span id="valorFinalTapTap"></span></p>
     <button onclick="abrirTapTap()">Abrir TapTapSend</button>
-  </div><button onclick="enviarWhatsApp()" class="generate">Enviar Pedido pelo WhatsApp</button>
+  </div>
 
+  <button onclick="enviarWhatsApp()" class="generate">Enviar Pedido pelo WhatsApp</button>
 </div>
-<a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a><script>
-let cart=[],total=0,entregaDeadline=null,entregaInterval=null;
-const custoPor1000 = 0.40;
-let totalVendas = 0;
-let lucroAcumulado = 0;
+<a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a>
 
-// Carregar histórico do LocalStorage
-if(localStorage.getItem('totalVendas')) totalVendas = parseInt(localStorage.getItem('totalVendas'));
-if(localStorage.getItem('lucroAcumulado')) lucroAcumulado = parseFloat(localStorage.getItem('lucroAcumulado'));
+<script>
+// ======= VARIÁVEIS =======
+let cart=[], total=0, entregaDeadline=null, entregaInterval=null;
+const custoPor1000 = 0.40;
+let totalVendas = localStorage.getItem('totalVendas') ? parseInt(localStorage.getItem('totalVendas')) : 0;
+let lucroAcumulado = localStorage.getItem('lucroAcumulado') ? parseFloat(localStorage.getItem('lucroAcumulado')) : 0;
+
+// ======= FUNÇÕES =======
+function atualizarTotal() { 
+  document.getElementById("total").innerText="Total: R$ "+total.toFixed(2); 
+  atualizarCarrinho(); 
+}
+function atualizarCarrinho(){
+  const lista=document.getElementById("listaCarrinho"); lista.innerHTML="";
+  cart.forEach((item)=>{ lista.innerHTML+=`<li>${item.q} unidades - R$ ${item.v.toFixed(2)}</li>`; });
+}
 function atualizarRelatorio(){
   document.getElementById("totalVendido").innerText=`Total vendido: ${totalVendas} unidades`;
   document.getElementById("lucroTotal").innerText=`Lucro total: R$ ${lucroAcumulado.toFixed(2)}`;
   localStorage.setItem('totalVendas', totalVendas);
   localStorage.setItem('lucroAcumulado', lucroAcumulado);
 }
-
-function atualizarTotal(){ document.getElementById("total").innerText="Total: R$ "+total.toFixed(2); atualizarCarrinho(); }
-function atualizarCarrinho(){
-  const lista = document.getElementById("listaCarrinho");
-  lista.innerHTML="";
-  cart.forEach((item,i)=>{ lista.innerHTML+=`<li>${item.q} unidades - R$ ${item.v.toFixed(2)}</li>`; });
-}
-
 function addCart(q,v){ cart.push({q,v}); total+=v; atualizarTotal(); }
-function addCustom(){ let q=parseInt(document.getElementById("quantidade").value)||0; if(q<=0){ alert("Digite uma quantidade válida!"); return; } let v=(q/1000)*0.6; addCart(q,v); document.getElementById("quantidade").value=''; }
+function addCustom(){ 
+  let q=parseInt(document.getElementById("quantidade").value)||0; 
+  if(q<=0){ alert("Digite uma quantidade válida!"); return; } 
+  let v=(q/1000)*0.6; addCart(q,v); document.getElementById("quantidade").value=''; 
+}
 function limparCarrinho(){ cart=[]; total=0; atualizarTotal(); document.getElementById("pagamentoPIX").style.display="none"; document.getElementById("pagamentoTapTap").style.display="none"; }
-
-function iniciarEntrega(){ if(!entregaDeadline) return; clearInterval(entregaInterval); entregaInterval=setInterval(()=>{ let now=new Date().getTime(), dist=entregaDeadline-now; if(dist<=0){ clearInterval(entregaInterval); document.getElementById("tempoEntregaPIX").innerHTML="<strong>Entrega:</strong> Pedido entregue!"; return; } let h=Math.floor(dist/(1000*60*60)), m=Math.floor((dist%(1000*60*60))/(1000*60)), s=Math.floor((dist%(1000*60))/1000); document.getElementById("tempoEntregaPIX").innerHTML=`<strong>Entrega:</strong> ${h}h ${m}m ${s}s`; },1000); }
-
+function iniciarEntrega(){ 
+  if(!entregaDeadline) return; 
+  clearInterval(entregaInterval); 
+  entregaInterval=setInterval(()=>{
+    let now=new Date().getTime(), dist=entregaDeadline-now;
+    if(dist<=0){ clearInterval(entregaInterval); document.getElementById("tempoEntregaPIX").innerHTML="<strong>Entrega:</strong> Pedido entregue!"; return; }
+    let h=Math.floor(dist/(1000*60*60)), m=Math.floor((dist%(1000*60*60))/(1000*60)), s=Math.floor((dist%(1000*60))/1000);
+    document.getElementById("tempoEntregaPIX").innerHTML=`<strong>Entrega:</strong> ${h}h ${m}m ${s}s`;
+  },1000);
+}
 function gerarPagamento(){
   if(total<=0){ alert("Adicione pelo menos um item!"); return; }
   let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);
@@ -95,22 +124,28 @@ function gerarPagamento(){
   document.getElementById("valorFinalPIX").innerHTML=`<strong>Quantidade total:</strong> ${totalPerf}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
   document.getElementById("qrcodePIX").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QTD ${totalPerf}`);
   entregaDeadline=new Date().getTime()+24*60*60*1000; iniciarEntrega();
+
   document.getElementById("pagamentoTapTap").style.display="block";
   document.getElementById("valorFinalTapTap").innerText="R$ "+total.toFixed(2);
 }
-
-function copiarPix(){ let totalPerf=cart.reduce((acc,it)=>acc+it.q,0); let val=total.toFixed(2); totalVendas+=totalPerf; lucroAcumulado += total - (totalPerf/1000)*custoPor1000; atualizarRelatorio(); navigator.clipboard.writeText(`PIX CPF 44879579823 VALOR R$ ${val} QTD ${totalPerf}`).then(()=>{ alert("PIX copiado!"); }); limparCarrinho(); }
+function copiarPix(){ 
+  let totalPerf=cart.reduce((acc,it)=>acc+it.q,0); 
+  let val=total.toFixed(2); 
+  totalVendas+=totalPerf; 
+  lucroAcumulado += total - (totalPerf/1000)*custoPor1000; 
+  atualizarRelatorio(); 
+  navigator.clipboard.writeText(`PIX CPF 44879579823 VALOR R$ ${val} QTD ${totalPerf}`).then(()=>{ alert("PIX copiado!"); }); 
+  limparCarrinho(); 
+}
 function abrirTapTap(){ window.location.href="taptapsend://"; }
-
 function enviarWhatsApp(){
-  const nome = document.getElementById("nomeCliente").value.trim();
-  const whatsapp = document.getElementById("whatsappCliente").value.trim();
+  const nome=document.getElementById("nomeCliente").value.trim();
+  const whatsapp=document.getElementById("whatsappCliente").value.trim();
   if(!nome || !whatsapp){ alert("Preencha seu nome e WhatsApp antes de enviar o pedido!"); return; }
   if(cart.length===0){ alert("Adicione produtos antes de enviar o pedido!"); return; }
   let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);
   let lucro = total - (totalPerf/1000)*custoPor1000;
-  totalVendas += totalPerf;
-  lucroAcumulado += lucro;
+  totalVendas += totalPerf; lucroAcumulado += lucro;
   atualizarRelatorio();
   let valorTotal=total.toFixed(2);
   let mensagem=`Olá! Pedido de ${nome} (${whatsapp}):\nQuantidade: ${totalPerf}\nValor: R$ ${valorTotal}\nLucro estimado: R$ ${lucro.toFixed(2)}\nPagamento: PIX/TapTapSend\nData: ${new Date().toLocaleString()}`;
@@ -121,5 +156,6 @@ function enviarWhatsApp(){
 }
 
 atualizarRelatorio();
-</script></body>
+</script>
+</body>
 </html>
