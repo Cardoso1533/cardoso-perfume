@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfume Cardoso</title>
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#000;
+  color:#fff;
+  text-align:center;
+}
+.container{
+  padding:20px;
+}
+.card{
+  background:#111;
+  padding:15px;
+  margin:15px 0;
+  border-radius:10px;
+}
+button{
+  background:#00c853;
+  color:white;
+  border:none;
+  padding:10px 20px;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+button:hover{
+  opacity:0.8;
+}
+.pix-box{
+  margin-top:20px;
+  padding:15px;
+  background:#111;
+  border-radius:10px;
+}
+a{
+  color:#00e676;
+  text-decoration:none;
+  display:block;
+  margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Perfume Cardoso</h1>
+  <p>Escolha seu pacote:</p>
+
+  <div class="card">
+    <h3>1.000 Perfumes</h3>
+    <p>R$ 0,60</p>
+    <button onclick="pagar(0.60)">Comprar</button>
+  </div>
+
+  <div class="card">
+    <h3>10.000 Perfumes</h3>
+    <p>R$ 6,00</p>
+    <button onclick="pagar(6.00)">Comprar</button>
+  </div>
+
+  <div class="card">
+    <h3>25.000 Perfumes</h3>
+    <p>R$ 15,00</p>
+    <button onclick="pagar(15.00)">Comprar</button>
+  </div>
+
+  <div id="pagamento" class="pix-box" style="display:none;">
+    <h2>Pagamento via PIX</h2>
+    <p><strong>Chave PIX (CPF):</strong></p>
+    <p>44879579823</p>
+    <p id="valor"></p>
+    <a href="https://wa.me/5518991857067" target="_blank">
+      Enviar comprovante no WhatsApp
+    </a>
+  </div>
+
+</div>
+
+<script>
+function pagar(valor){
+  document.getElementById("pagamento").style.display = "block";
+  document.getElementById("valor").innerHTML = 
+    "<strong>Valor a pagar:</strong> R$ " + valor.toFixed(2);
+  window.scrollTo(0, document.body.scrollHeight);
+}
+</script>
+
+</body>
+</html>
