@@ -8,14 +8,19 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #0a0a0a;
+  background-color: #0a0a0a;
+  background-image: url('logo.png');
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 150px 150px;
+  background-attachment: fixed;
   color: #fff;
 }
 header {
   position: fixed;
   top: 0;
   width: 100%;
-  background: #111;
+  background: rgba(17,17,17,0.95);
   padding: 15px 20px;
   text-align: center;
   font-size: 24px;
@@ -28,9 +33,12 @@ header {
   padding: 100px 20px 20px;
   max-width: 500px;
   margin: auto;
+  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.6);
+  border-radius: 10px;
 }
 .card {
-  background: #1a1a1a;
+  background: rgba(26,26,26,0.9);
   padding: 20px;
   margin: 15px 0;
   border-radius: 15px;
@@ -56,7 +64,7 @@ button:hover {
 }
 .pix-box {
   display: none;
-  background: #222;
+  background: rgba(34,34,34,0.95);
   padding: 20px;
   margin-top: 20px;
   border-radius: 15px;
