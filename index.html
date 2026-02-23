@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cardoso Perfume</title>
 <style>
-/* Fundo personalizado */
+/* Fundo degradê vermelho e preto */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #0a0a0a;
+  background: linear-gradient(135deg, #8B0000, #000000);
   color: #fff;
   min-height: 100vh;
   position: relative;
@@ -54,8 +54,8 @@ header {
 }
 /* Cards de pacotes */
 .card {
-  background: linear-gradient(135deg, #ffeb3b, #ffc107);
-  color: #000;
+  background: linear-gradient(135deg, #ff0000, #8B0000);
+  color: #fff;
   padding: 15px 20px;
   margin: 15px 0;
   border-radius: 15px;
@@ -114,6 +114,35 @@ input[type="number"] {
   width: 200px;
   height: 200px;
 }
+button.generate {
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  margin-top: 15px;
+  border-radius: 15px;
+  background: #ffeb3b;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+button.generate:hover {
+  opacity: 0.8;
+}
+button.copy-btn {
+  margin-top:10px;
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  background:#ffeb3b;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+button.copy-btn:hover{
+  opacity:0.8;
+}
 /* WhatsApp */
 a.whatsapp-btn {
   position: fixed;
@@ -132,22 +161,6 @@ a.whatsapp-btn {
 a.whatsapp-btn:hover {
   opacity: 0.8;
 }
-button.generate {
-  width: 100%;
-  padding: 15px;
-  font-size: 18px;
-  margin-top: 15px;
-  border-radius: 15px;
-  background: #ffeb3b;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  border: none;
-  transition: opacity 0.2s;
-}
-button.generate:hover {
-  opacity: 0.8;
-}
 </style>
 </head>
 <body>
@@ -160,58 +173,4 @@ button.generate:hover {
   <div class="card"><span>10.000 perfumes</span><span>R$ 6,00</span><button onclick="adicionarCarrinho(10000,6)">Comprar</button></div>
   <div class="card"><span>25.000 perfumes</span><span>R$ 15,00</span><button onclick="adicionarCarrinho(25000,15)">Comprar</button></div>
   <div class="card"><span>50.000 perfumes</span><span>R$ 30,00</span><button onclick="adicionarCarrinho(50000,30)">Comprar</button></div>
-  <div class="card"><span>200.000 perfumes</span><span>R$ 120,00</span><button onclick="adicionarCarrinho(200000,120)">Comprar</button></div>
-  <div class="card"><span>500.000 perfumes</span><span>R$ 300,00</span><button onclick="adicionarCarrinho(500000,300)">Comprar</button></div>
-
-  <h3>Quantidade personalizada:</h3>
-  <input type="number" id="quantidade" placeholder="Digite a quantidade">
-  <button class="generate" onclick="adicionarPersonalizado()">Adicionar ao carrinho</button>
-
-  <div class="total-box" id="total">Total: R$ 0,00</div>
-  <button class="generate" onclick="gerarPix()">Gerar PIX</button>
-
-  <div id="pagamento" class="pix-box">
-    <h2>Pagamento via PIX</h2>
-    <p><strong>Chave PIX (CPF):</strong> 44879579823</p>
-    <p id="valorFinal"></p>
-    <img id="qrcode" class="qr" />
-  </div>
-</div>
-
-<a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a>
-
-<script>
-let carrinho = [];
-let total = 0;
-
-function atualizarTotal(){
-  document.getElementById("total").innerText = "Total: R$ " + total.toFixed(2);
-}
-
-function adicionarCarrinho(quantidade, valor){
-  carrinho.push({quantidade, valor});
-  total += valor;
-  atualizarTotal();
-}
-
-function adicionarPersonalizado(){
-  const quantidade = parseInt(document.getElementById("quantidade").value) || 0;
-  if(quantidade <=0){alert("Digite uma quantidade válida!"); return;}
-  const valor = (quantidade/1000)*0.6;
-  adicionarCarrinho(quantidade, valor);
-  document.getElementById("quantidade").value='';
-}
-
-function gerarPix(){
-  if(total <=0){alert("Adicione pelo menos um item!"); return;}
-  const totalPerfumes = carrinho.reduce((acc,item)=>acc+item.quantidade,0);
-  document.getElementById("pagamento").style.display="block";
-  document.getElementById("valorFinal").innerHTML = `<strong>Quantidade total:</strong> ${totalPerfumes}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
-  const pixTexto=`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QUANTIDADE TOTAL: ${totalPerfumes}`;
-  document.getElementById("qrcode").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(pixTexto);
-  carrinho=[]; total=0; atualizarTotal();
-}
-</script>
-
-</body>
-</html>
+  <div class="card"><span>200.000 perfumes</span><span>
