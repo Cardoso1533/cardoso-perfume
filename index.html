@@ -37,23 +37,12 @@ header {
   background: rgba(0,0,0,0.6);
   border-radius: 10px;
 }
-.card {
-  background: rgba(26,26,26,0.9);
-  padding: 20px;
-  margin: 15px 0;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-  transition: transform 0.2s;
-}
-.card:hover {
-  transform: translateY(-3px);
-}
 label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
 }
-input[type="text"] {
+input[type="number"] {
   width: 100%;
   padding: 8px;
   border-radius: 5px;
@@ -73,6 +62,17 @@ button {
 }
 button:hover {
   opacity: 0.8;
+}
+.cart-box {
+  margin-top: 15px;
+  background: rgba(34,34,34,0.9);
+  padding: 10px;
+  border-radius: 10px;
+}
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
 }
 .pix-box {
   display: none;
@@ -109,89 +109,129 @@ img.qr {
   width: 200px;
   height: 200px;
 }
+.total-box {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ff00;
+}
+.admin-panel {
+  margin-top: 20px;
+  background: rgba(26,26,26,0.9);
+  padding: 10px;
+  border-radius: 10px;
+}
+.admin-item {
+  padding: 5px 0;
+  border-bottom: 1px solid #555;
+}
 </style>
 </head>
 <body>
 
-<header>Perfume Cardoso</header>
+<header>
+  Perfume Cardoso
+  <button style="position:absolute; right:20px; top:15px; padding:5px 10px;" onclick="toggleAdmin()">Admin</button>
+</header>
 
 <div class="container">
-  <p>Escolha seu pacote:</p>
 
-  <!-- PRODUTOS -->
-  <div class="card">
-    <h3>1.000 Perfumes</h3>
-    <p>R$ 0,60</p>
-    <label for="perfume1">Digite o perfume desejado:</label>
-    <input type="text" id="perfume1" placeholder="Ex: Lavanda">
-    <button onclick="pagar(0.60, document.getElementById('perfume1').value)">Comprar</button>
+  <!-- Carrinho -->
+  <label for="quantidade">Digite a quantidade de perfumes:</label>
+  <input type="number" id="quantidade" placeholder="Ex: 1000" min="1">
+
+  <button onclick="adicionarCarrinho()">Adicionar ao carrinho</button>
+
+  <div class="cart-box" id="carrinho">
+    <p><strong>Carrinho:</strong></p>
+    <div id="itensCarrinho"></div>
+    <div class="total-box" id="total">Total: R$ 0,00</div>
   </div>
 
-  <div class="card">
-    <h3>10.000 Perfumes</h3>
-    <p>R$ 6,00</p>
-    <label for="perfume2">Digite o perfume desejado:</label>
-    <input type="text" id="perfume2" placeholder="Ex: Rosas">
-    <button onclick="pagar(6.00, document.getElementById('perfume2').value)">Comprar</button>
-  </div>
+  <button onclick="gerarPix()">Gerar PIX</button>
 
-  <div class="card">
-    <h3>25.000 Perfumes</h3>
-    <p>R$ 15,00</p>
-    <label for="perfume3">Digite o perfume desejado:</label>
-    <input type="text" id="perfume3" placeholder="Ex: Jasmim">
-    <button onclick="pagar(15.00, document.getElementById('perfume3').value)">Comprar</button>
-  </div>
-
-  <div class="card">
-    <h3>50.000 Perfumes</h3>
-    <p>R$ 30,00</p>
-    <label for="perfume4">Digite o perfume desejado:</label>
-    <input type="text" id="perfume4" placeholder="Ex: Baunilha">
-    <button onclick="pagar(30.00, document.getElementById('perfume4').value)">Comprar</button>
-  </div>
-
-  <div class="card">
-    <h3>200.000 Perfumes</h3>
-    <p>R$ 120,00</p>
-    <label for="perfume5">Digite o perfume desejado:</label>
-    <input type="text" id="perfume5" placeholder="Ex: Flor de Lótus">
-    <button onclick="pagar(120.00, document.getElementById('perfume5').value)">Comprar</button>
-  </div>
-
-  <div class="card">
-    <h3>500.000 Perfumes</h3>
-    <p>R$ 300,00</p>
-    <label for="perfume6">Digite o perfume desejado:</label>
-    <input type="text" id="perfume6" placeholder="Ex: Musk">
-    <button onclick="pagar(300.00, document.getElementById('perfume6').value)">Comprar</button>
-  </div>
-
-  <!-- PAGAMENTO -->
   <div id="pagamento" class="pix-box">
     <h2>Pagamento via PIX</h2>
-    <p><strong>Chave PIX (CPF):</strong></p>
-    <p>44879579823</p>
-    <p id="valor"></p>
+    <p><strong>Chave PIX (CPF):</strong> 44879579823</p>
+    <p id="valorFinal"></p>
     <img id="qrcode" class="qr" />
+  </div>
+
+  <!-- Painel Admin -->
+  <div id="admin" class="admin-panel" style="display:none;">
+    <h3>Pedidos Registrados</h3>
+    <div id="pedidos"></div>
   </div>
 </div>
 
 <a href="https://wa.me/5518991857067" target="_blank" class="whatsapp-btn">📱</a>
 
 <script>
-function pagar(valor, perfume){
-  const pagamento = document.getElementById("pagamento");
-  pagamento.style.display = "block";
-  document.getElementById("valor").innerHTML = "<strong>Valor a pagar:</strong> R$ " + valor.toFixed(2) + 
-                                               (perfume ? "<br><strong>Perfume:</strong> " + perfume : "");
+let carrinho = [];
+let total = 0;
+let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
 
-  const pixTexto = "PIX CPF 44879579823 VALOR " + valor.toFixed(2) + (perfume ? " PERFUME: " + perfume : "");
-  const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(pixTexto);
-  document.getElementById("qrcode").src = qrUrl;
-
-  window.scrollTo({top: pagamento.offsetTop, behavior: 'smooth'});
+function atualizarCarrinho(){
+  const itensDiv = document.getElementById("itensCarrinho");
+  itensDiv.innerHTML = '';
+  carrinho.forEach((item,index)=>{
+    const div = document.createElement('div');
+    div.className='cart-item';
+    div.innerHTML = `Item ${index+1}: ${item.quantidade} perfumes - R$ ${item.valor.toFixed(2)}`;
+    itensDiv.appendChild(div);
+  });
+  document.getElementById("total").innerHTML="Total: R$ "+total.toFixed(2);
 }
+
+function adicionarCarrinho(){
+  const quantidade = parseInt(document.getElementById("quantidade").value)||0;
+  if(quantidade<=0){alert("Digite uma quantidade válida!");return;}
+  const valor=(quantidade/1000)*0.6;
+  total+=valor;
+  carrinho.push({quantidade,valor});
+  atualizarCarrinho();
+  document.getElementById("quantidade").value='';
+}
+
+function gerarPix(){
+  if(total<=0){alert("Adicione pelo menos um item ao carrinho!");return;}
+  const totalPerfumes=carrinho.reduce((acc,item)=>acc+item.quantidade,0);
+
+  // Salvar pedido
+  const novoPedido={id:Date.now(),total,totalPerfumes,data:new Date().toLocaleString()};
+  pedidos=[novoPedido,...pedidos];
+  localStorage.setItem("pedidos",JSON.stringify(pedidos));
+
+  const pagamento=document.getElementById("pagamento");
+  pagamento.style.display='block';
+  document.getElementById("valorFinal").innerHTML=`<strong>Quantidade total:</strong> ${totalPerfumes}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
+  const pixTexto=`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QUANTIDADE TOTAL: ${totalPerfumes}`;
+  document.getElementById("qrcode").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(pixTexto);
+
+  // Reset carrinho
+  carrinho=[]; total=0; atualizarCarrinho();
+}
+
+function toggleAdmin(){
+  const adminDiv=document.getElementById("admin");
+  adminDiv.style.display=adminDiv.style.display==='none'?'block':'none';
+  atualizarPedidos();
+}
+
+function atualizarPedidos(){
+  const pedidosDiv=document.getElementById("pedidos");
+  pedidosDiv.innerHTML='';
+  if(pedidos.length===0){pedidosDiv.innerHTML="<p>Nenhum pedido registrado.</p>";return;}
+  pedidos.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='admin-item';
+    div.innerHTML=`ID: ${p.id}<br>Quantidade: ${p.totalPerfumes}<br>Valor: R$ ${p.total.toFixed(2)}<br><small>${p.data}</small>`;
+    pedidosDiv.appendChild(div);
+  });
+}
+
+// Inicializa painel com pedidos salvos
+atualizarPedidos();
 </script>
 
 </body>
