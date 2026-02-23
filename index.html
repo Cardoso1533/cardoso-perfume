@@ -1,30 +1,42 @@
-// ============================================ // CARDOSO PERFUME - ESTRUTURA COMPLETA PWA ATUALIZADA COM WHATSAPP // Projeto pronto para subir no Vercel // ============================================
+<!-- Botão para enviar pedido para WhatsApp -->
+<button onclick="enviarWhatsApp()" class="generate">Enviar Pedido pelo WhatsApp</button>
 
-// ============================ // 1) package.json // ============================ /* { "name": "cardoso-perfume", "private": true, "version": "1.0.0", "type": "module", "scripts": { "dev": "vite", "build": "vite build", "preview": "vite preview" }, "dependencies": { "react": "^18.2.0", "react-dom": "^18.2.0", "react-qr-code": "^2.0.11", "lucide-react": "^0.263.1", "framer-motion": "^10.16.4" }, "devDependencies": { "@vitejs/plugin-react": "^4.0.0", "vite": "^4.4.0", "tailwindcss": "^3.3.0", "postcss": "^8.4.0", "autoprefixer": "^10.4.0" } } */
+<script>
+let cart=[],total=0,entregaDeadline=null,entregaInterval=null;
 
-// ============================ // 2) vite.config.js // ============================ /* import { defineConfig } from 'vite' import react from '@vitejs/plugin-react'
+function atualizarTotal(){document.getElementById("total").innerText="Total: R$ "+total.toFixed(2);}
+function addCart(q,v){cart.push({q,v});total+=v;atualizarTotal();}
+function addCustom(){let q=parseInt(document.getElementById("quantidade").value)||0;if(q<=0){alert("Digite uma quantidade válida!");return;}let v=(q/1000)*0.6;addCart(q,v);document.getElementById("quantidade").value='';}
+function iniciarEntrega(){if(!entregaDeadline)return;clearInterval(entregaInterval);entregaInterval=setInterval(()=>{let now=new Date().getTime(),dist=entregaDeadline-now;if(dist<=0){clearInterval(entregaInterval);document.getElementById("tempoEntregaPIX").innerHTML="<strong>Entrega:</strong> Pedido entregue!";return;}let h=Math.floor(dist/(1000*60*60)),m=Math.floor((dist%(1000*60*60))/(1000*60)),s=Math.floor((dist%(1000*60))/1000);document.getElementById("tempoEntregaPIX").innerHTML=`<strong>Entrega:</strong> ${h}h ${m}m ${s}s`;},1000);}
+function gerarPagamento(){
+  if(total<=0){alert("Adicione pelo menos um item!"); return;}
+  // PIX
+  let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);
+  document.getElementById("pagamentoPIX").style.display="block";
+  document.getElementById("valorFinalPIX").innerHTML=`<strong>Quantidade total:</strong> ${totalPerf}<br><strong>Valor total:</strong> R$ ${total.toFixed(2)}`;
+  document.getElementById("qrcodePIX").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(`PIX CPF 44879579823 VALOR ${total.toFixed(2)} QTD ${totalPerf}`);
+  entregaDeadline=new Date().getTime()+24*60*60*1000;iniciarEntrega();
 
-export default defineConfig({ plugins: [react()], }) */
+  // TapTapSend
+  document.getElementById("pagamentoTapTap").style.display="block";
+  document.getElementById("valorFinalTapTap").innerText="R$ "+total.toFixed(2);
+}
 
-// ============================ // 3) index.html // ============================ /*
+// Copiar PIX
+function copiarPix(){let totalPerf=cart.reduce((acc,it)=>acc+it.q,0);let val=total.toFixed(2);navigator.clipboard.writeText(`PIX CPF 44879579823 VALOR R$ ${val} QTD ${totalPerf}`).then(()=>{alert("PIX copiado!");});cart=[];total=0;atualizarTotal();}
 
-<!DOCTYPE html><html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#000000" />
-    <link rel="manifest" href="/manifest.json" />
-    <title>Cardoso Perfume</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
-*/// ============================ // 4) manifest.json // ============================ /* { "name": "Cardoso Perfume", "short_name": "Cardoso", "start_url": "/", "display": "standalone", "background_color": "#000000", "theme_color": "#000000", "icons": [ { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }, { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" } ] } */
+// Abrir TapTapSend
+function abrirTapTap(){window.location.href="taptapsend://";}
 
-// ============================ // 5) sw.js (Service Worker) // ============================ /* const CACHE_NAME = "cardoso-perfume-v1"; const urlsToCache = ["/"];
-
-self.addEventListener("install", (event) => { event.waitUntil( caches.open(CACHE_NAME).then((cache) => { return cache.addAll(urlsToCache); }) ); });
-
-self.addEventListener("fetch", (event) => { event
+// Enviar pedido para WhatsApp
+function enviarWhatsApp(){
+  if(cart.length === 0){alert("Adicione produtos antes de enviar o pedido!"); return;}
+  let totalPerf = cart.reduce((acc,it)=>acc+it.q,0);
+  let valorTotal = total.toFixed(2);
+  let mensagem = `Olá! Realizei um pedido:\nQuantidade: ${totalPerf}\nValor: R$ ${valorTotal}\nPagamento: PIX/TapTapSend\nData: ${new Date().toLocaleString()}`;
+  let numero = "5518991857067"; // seu WhatsApp
+  let link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+  window.open(link, "_blank");
+  cart=[]; total=0; atualizarTotal();
+}
+</script>
