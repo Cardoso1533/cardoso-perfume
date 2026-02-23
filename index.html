@@ -65,16 +65,21 @@ const custoPor1000 = 0.40;
 let totalVendas = 0;
 let lucroAcumulado = 0;
 
+// Carregar histórico do LocalStorage
+if(localStorage.getItem('totalVendas')) totalVendas = parseInt(localStorage.getItem('totalVendas'));
+if(localStorage.getItem('lucroAcumulado')) lucroAcumulado = parseFloat(localStorage.getItem('lucroAcumulado'));
+function atualizarRelatorio(){
+  document.getElementById("totalVendido").innerText=`Total vendido: ${totalVendas} unidades`;
+  document.getElementById("lucroTotal").innerText=`Lucro total: R$ ${lucroAcumulado.toFixed(2)}`;
+  localStorage.setItem('totalVendas', totalVendas);
+  localStorage.setItem('lucroAcumulado', lucroAcumulado);
+}
+
 function atualizarTotal(){ document.getElementById("total").innerText="Total: R$ "+total.toFixed(2); atualizarCarrinho(); }
 function atualizarCarrinho(){
   const lista = document.getElementById("listaCarrinho");
   lista.innerHTML="";
   cart.forEach((item,i)=>{ lista.innerHTML+=`<li>${item.q} unidades - R$ ${item.v.toFixed(2)}</li>`; });
-}
-
-function atualizarRelatorio(){
-  document.getElementById("totalVendido").innerText=`Total vendido: ${totalVendas} unidades`;
-  document.getElementById("lucroTotal").innerText=`Lucro total: R$ ${lucroAcumulado.toFixed(2)}`;
 }
 
 function addCart(q,v){ cart.push({q,v}); total+=v; atualizarTotal(); }
@@ -114,5 +119,7 @@ function enviarWhatsApp(){
   window.open(link,"_blank");
   limparCarrinho();
 }
+
+atualizarRelatorio();
 </script></body>
 </html>
