@@ -11,23 +11,16 @@ body {
     font-family:Arial;
     background:#0a0a0a;
     color:#fff;
+    text-align:center;
 }
 
 header {
-    text-align:center;
-    padding:10px;
     background:#000;
+    padding:15px;
 }
 
-header img {
-    width:180px;
-    max-width:90%;
-    border-radius:10px;
-}
-
-header h2 {
+header h1 {
     color:#00ffcc;
-    margin:5px 0;
 }
 
 .container {
@@ -48,4 +41,135 @@ button {
     padding:14px;
     margin-top:10px;
     border:none;
-    border-radius:
+    border-radius:10px;
+    background:#00ffcc;
+    color:#000;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+input {
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:10px;
+    border:none;
+}
+
+.item {
+    background:#1a1a1a;
+    padding:10px;
+    margin-top:8px;
+    border-radius:8px;
+}
+
+.total {
+    font-size:20px;
+    color:#00ffcc;
+    font-weight:bold;
+}
+
+.alert {
+    color:#ff4444;
+    font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>💰 Cardoso Perfumes • RioRise</h1>
+<p>Qualidade, rapidez e confiança</p>
+</header>
+
+<div class="container">
+
+<div class="box">
+<h3>👤 Seus dados</h3>
+<input type="text" id="nome" placeholder="Seu nome">
+<input type="text" id="servidor" placeholder="Servidor (ex: BR1)">
+<input type="text" id="nick" placeholder="Nick do jogador">
+</div>
+
+<div class="box">
+<h3>🛒 Pacotes</h3>
+<button onclick="add('Básico',10)">R$10 - Básico</button>
+<button onclick="add('Médio',25)">R$25 - Médio</button>
+<button onclick="add('Premium',50)">R$50 - Premium</button>
+</div>
+
+<div class="box">
+<h3>📦 Carrinho</h3>
+<div id="carrinho"></div>
+<p class="total" id="total">Total: R$ 0</p>
+<button onclick="limpar()">Limpar Carrinho</button>
+</div>
+
+<div class="box">
+<p class="alert">⚠️ Pagamento após confirmação no WhatsApp</p>
+<button onclick="finalizar()">📲 Finalizar Pedido</button>
+</div>
+
+</div>
+
+<script>
+let carrinho = [];
+let total = 0;
+
+function add(nome, valor){
+    carrinho.push({nome, valor});
+    total += valor;
+    atualizar();
+}
+
+function atualizar(){
+    let div = document.getElementById("carrinho");
+    div.innerHTML = "";
+
+    carrinho.forEach(p => {
+        div.innerHTML += `<div class="item">${p.nome} - R$ ${p.valor}</div>`;
+    });
+
+    document.getElementById("total").innerText = "Total: R$ " + total;
+}
+
+function limpar(){
+    carrinho = [];
+    total = 0;
+    atualizar();
+}
+
+function finalizar(){
+    let nome = document.getElementById("nome").value;
+    let servidor = document.getElementById("servidor").value;
+    let nick = document.getElementById("nick").value;
+
+    if(!nome || !servidor || !nick){
+        alert("Preencha tudo!");
+        return;
+    }
+
+    if(carrinho.length === 0){
+        alert("Carrinho vazio!");
+        return;
+    }
+
+    let msg = `Pedido:\nNome: ${nome}\nServidor: ${servidor}\nNick: ${nick}\n\n`;
+
+    carrinho.forEach(p=>{
+        msg += `${p.nome} - R$ ${p.valor}\n`;
+    });
+
+    msg += `\nTotal: R$ ${total}`;
+
+    let link = `https://wa.me/5518991857067?text=${encodeURIComponent(msg)}`;
+    window.open(link, "_blank");
+
+    limpar();
+}
+</script>
+
+</body>
+</html>
