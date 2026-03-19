@@ -39,13 +39,18 @@ header h1 {
 button {
     width:100%;
     padding:14px;
-    margin-top:10px;
+    margin-top:5px;
     border:none;
     border-radius:10px;
     background:#00ffcc;
     color:#000;
     font-weight:bold;
     cursor:pointer;
+    transition:0.2s;
+}
+
+button:active {
+    transform:scale(0.95);
 }
 
 input {
@@ -74,6 +79,16 @@ input {
     font-weight:bold;
 }
 
+#notificacao {
+    position:fixed;
+    bottom:20px;
+    left:20px;
+    background:#00ffcc;
+    color:#000;
+    padding:10px;
+    border-radius:10px;
+    display:none;
+}
 </style>
 </head>
 
@@ -82,6 +97,7 @@ input {
 <header>
 <h1>💰 Cardoso Perfumes • RioRise</h1>
 <p>Qualidade, rapidez e confiança</p>
+<p id="contadorVendas"></p>
 </header>
 
 <div class="container">
@@ -94,10 +110,25 @@ input {
 </div>
 
 <div class="box">
-<h3>🛒 Pacotes</h3>
-<button onclick="add('Básico',10)">R$10 - Básico</button>
-<button onclick="add('Médio',25)">R$25 - Médio</button>
-<button onclick="add('Premium',50)">R$50 - Premium</button>
+<h3>🛒 Quantidade</h3>
+
+<input type="number" id="quantidadeK" placeholder="Ex: 50 = 50k" min="1" max="1000">
+
+<p style="color:#00ffcc;">🔥 Mais vendidos</p>
+
+<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+<button onclick="selecionar(10)">10k</button>
+<button onclick="selecionar(100)">100k</button>
+<button onclick="selecionar(200)" style="background:#ff4444; color:#fff;">🔥 200k</button>
+
+<button onclick="selecionar(300)">300k</button>
+<button onclick="selecionar(500)" style="background:#ffd700; color:#000;">👑 500k</button>
+<button onclick="selecionar(1000)">1kk</button>
+</div>
+
+<p id="preview"></p>
+
+<button onclick="calcular()">Adicionar ao carrinho</button>
 </div>
 
 <div class="box">
@@ -109,19 +140,61 @@ input {
 
 <div class="box">
 <p class="alert">⚠️ Pagamento após confirmação no WhatsApp</p>
+<p style="color:#ff4444;">⚠️ Promoção pode acabar a qualquer momento</p>
 <button onclick="finalizar()">📲 Finalizar Pedido</button>
 </div>
 
 </div>
 
+<div id="notificacao"></div>
+
 <script>
 let carrinho = [];
 let total = 0;
 
-function add(nome, valor){
-    carrinho.push({nome, valor});
+function selecionar(k){
+    document.getElementById("quantidadeK").value = k;
+    atualizarPreview();
+}
+
+function atualizarPreview(){
+    let k = document.getElementById("quantidadeK").value;
+
+    if(!k) return;
+
+    let preco = k >= 200 ? 0.40 : 0.50;
+    let valor = k * preco;
+
+    document.getElementById("preview").innerText =
+        "Valor: R$ " + valor.toFixed(2) +
+        (k >= 200 ? " (com desconto)" : "");
+}
+
+document.getElementById("quantidadeK").addEventListener("input", atualizarPreview);
+
+function calcular(){
+    let k = parseInt(document.getElementById("quantidadeK").value);
+
+    if(!k || k < 1 || k > 1000){
+        alert("Digite de 1k até 1kk!");
+        return;
+    }
+
+    let preco = k >= 200 ? 0.40 : 0.50;
+    let valor = k * preco;
+    let quantidade = k * 1000;
+
+    carrinho.push({
+        nome: quantidade.toLocaleString() + " unidades",
+        valor: valor
+    });
+
     total += valor;
+
     atualizar();
+
+    document.getElementById("quantidadeK").value = "";
+    document.getElementById("preview").innerText = "";
 }
 
 function atualizar(){
@@ -147,7 +220,7 @@ function finalizar(){
     let nick = document.getElementById("nick").value;
 
     if(!nome || !servidor || !nick){
-        alert("Preencha tudo!");
+        alert("Preencha todos os dados!");
         return;
     }
 
@@ -169,6 +242,35 @@ function finalizar(){
 
     limpar();
 }
+
+// contador
+let pessoas = 12;
+function atualizarContador(){
+    pessoas += Math.floor(Math.random() * 3);
+    document.getElementById("contadorVendas").innerText =
+        pessoas + " pessoas compraram hoje 🔥";
+}
+setInterval(atualizarContador, 5000);
+atualizarContador();
+
+// notificações
+function notificar(){
+    let nomes = ["Lucas","Maria","João","Ana","Carlos"];
+    let valores = ["100k","200k","500k"];
+
+    let nome = nomes[Math.floor(Math.random()*nomes.length)];
+    let valor = valores[Math.floor(Math.random()*valores.length)];
+
+    let n = document.getElementById("notificacao");
+
+    n.innerText = nome + " comprou " + valor;
+    n.style.display = "block";
+
+    setTimeout(()=>{
+        n.style.display = "none";
+    },3000);
+}
+setInterval(notificar, 7000);
 </script>
 
 </body>
